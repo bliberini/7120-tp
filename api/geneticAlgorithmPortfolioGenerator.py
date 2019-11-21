@@ -20,9 +20,9 @@ class Genetic_Algorithm_Portfolio:
         self.cov_matrix = cov_matrix
 
     def generate_portfolio(self):
-        print("Generating portfolio")
+        #print("Generating portfolio")
         # Map solutions so that the Candidate objects also have normalized fitness value and cummulative sum
-        random_generator = Random_Portfolio_Generator(5000, self.max_risk, self.returns, self.cov_matrix)
+        random_generator = Random_Portfolio_Generator(500, self.max_risk, self.returns, self.cov_matrix)
         self.initial_population = random_generator.generate_solutions()[0]
         if len(self.initial_population) == 0:
             return None
@@ -35,33 +35,33 @@ class Genetic_Algorithm_Portfolio:
             portfolioUtilities.calculate_std(initial_weight, self.cov_matrix)
         )
 
-        # With this initial population, run 1000 generations
-        improvements = 50
+        # With this initial population, run 100 generations
+        improvements = 20
         for i in range(self.generations):
             if improvements == 0:
-                print("No improvements after 50 generations")
+                #print("No improvements after 50 generations")
                 break
-            if i % 100 == 0:
-                print(f"Generation {i+1}/{self.generations} Selection...")
+            ##if i % 100 == 0:
+                #print(f"Generation {i+1}/{self.generations} Selection...")
             # Next generation will be those selected by the selection method + the 10 best by expected return from the current generation
             next_gen_selected = self.next_generation(current_generation)
             current_generation.sort(key=lambda x: x.expected_return, reverse=True)
             next_gen_selected = next_gen_selected + current_generation[:10]
 
-            if i % 100 == 0:
-                print(f"Generation {i+1}/{self.generations} Pairing...")
+            #if i % 100 == 0:
+                #print(f"Generation {i+1}/{self.generations} Pairing...")
             # Pair parents
             parents = self.pair(next_gen_selected)
 
-            if i % 100 == 0:
-                print(f"Generation {i+1}/{self.generations} Crossing...")
+            #if i % 100 == 0:
+                #print(f"Generation {i+1}/{self.generations} Crossing...")
             # Cross them and create the next gen
             next_gen = []
             for j in range(len(parents)):
                 next_gen = next_gen + self.cross(parents[j])
 
-            if i % 100 == 0:
-                print(f"Generation {i+1}/{self.generations} Finding best...")
+            #if i % 100 == 0:
+                #print(f"Generation {i+1}/{self.generations} Finding best...")
             # Check if you found a better solution
             next_gen.sort(key=lambda x: x.expected_return, reverse=True)
 
@@ -70,7 +70,7 @@ class Genetic_Algorithm_Portfolio:
 
             next_gen_best_solution = next_gen[0]
             if (best_solution.expected_return < next_gen_best_solution.expected_return):
-                print("New best solution!")
+                #print("New best solution!")
                 best_solution = next_gen_best_solution
                 improvements = 50
             else:
@@ -78,7 +78,7 @@ class Genetic_Algorithm_Portfolio:
             
             # Next generation is now current generation
             current_generation = next_gen
-        print("Done!")
+        #print("Done!")
         return best_solution
         
     def judge_candidates(self, candidates):

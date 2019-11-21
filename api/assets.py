@@ -1,5 +1,18 @@
 import pandas as pd
 import numpy as np
+import csv
+from stock import Stock
+
+def get_assets():
+    assets = []
+    with open('stocks.csv') as stocks:
+      stocks_reader = csv.reader(stocks, delimiter=',')
+      line = 0
+      for row in stocks_reader:
+        if line != 0:
+          assets.append(Stock(row[0], row[1]))
+        line += 1  
+    return assets
 
 def parse_assets():
     assets =  ['AAPL', 'GM', 'MSFT', 'TSLA', 'SPOT', 'BOA', 'KO']

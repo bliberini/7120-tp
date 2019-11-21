@@ -100,7 +100,7 @@ class App extends Component {
   }
   onClick() {
     this.setState({ loading: true });
-    axios.post('http://localhost:5000/generate', { max_risk: this.state.maxRisk }, { headers: {
+    axios.post('http://localhost:9000/generate', { max_risk: this.state.maxRisk }, { headers: {
       'Access-Control-Allow-Origin': '*',
       'Content-Type': 'application/json',
     }})
@@ -118,7 +118,15 @@ class App extends Component {
       .catch((error) => {
         console.log("There was an error")
         console.log(error)
-        this.setState({ loading: false, error: true });
+        const rows = this.state.rows.slice();
+        rows.forEach((x) => { x.pct = ''; });
+        this.setState({
+          loading:
+          false,
+          error: true,
+          rows,
+          return: '',
+        });
       });
   }
 

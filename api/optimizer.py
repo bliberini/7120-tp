@@ -9,10 +9,10 @@ class Optimizer:
         self.assets, self.returns, self.cov_matrix, self.variance = parse_assets()
 
     def generate_random_portfolio(self):
-        generator = Random_Portfolio_Generator(5000, self.max_risk, self.returns, self.cov_matrix)
+        generator = Random_Portfolio_Generator(1000, self.max_risk, self.returns, self.cov_matrix)
         solutions, best_solution, best_return, best_std = generator.generate_solutions()
         return solutions, best_solution, best_return, best_std
     
     def generate_genetic_algorithm_portfolio(self):
-        generator = Genetic_Algorithm_Portfolio(self.max_risk, 100, self.returns, self.cov_matrix)
+        generator = Genetic_Algorithm_Portfolio(self.max_risk, 50, self.returns, self.cov_matrix)
         return generator.generate_portfolio()

@@ -16,12 +16,12 @@ class Random_Portfolio_Generator:
         best_return = float("-inf")
         best_std = 0
         seed = 42
-        print(">> Generating solutions")
+        #print(">> Generating solutions")
         counter = 0
         attempts = 0
         while counter < self.num_solutions and attempts < 50:
-            if counter % 500 == 0:
-                print(f"Solution {counter+1} / {self.num_solutions}...")
+            #if counter % 500 == 0:
+                #print(f"Solution {counter+1} / {self.num_solutions}...")
             random.seed(seed)
             seed += 1
             weights = self.generate_random_weights()
