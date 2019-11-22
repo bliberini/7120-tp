@@ -72,8 +72,8 @@ const useStyles = theme => ({
   },
 });
 
-function createData(name, roi, std) {
-  return { name, roi: roi * 100, std: std * 100, pct: '' };
+function createData(ticker, name, roi, std) {
+  return { ticker, name, roi: roi * 100, std: std * 100, pct: '' };
 }
 
 class App extends Component {
@@ -84,20 +84,34 @@ class App extends Component {
       maxRisk: 0,
       loading: false,
       return: '',
-      rows: [
-        createData('Apple', -0.0322773, 0.01811),
-        createData('General Motors', -0.13283933, Math.sqrt(0.000407)),
-        createData('Microsoft', 0.22378075, Math.sqrt(0.000318)),
-        createData('Tesla', 0.20444404, 0.001363),
-        createData('Spotify', -0.27523063, 0.000691),
-        createData('Bank of America', 0.28569167, 0.000843),
-        createData('Coca-Cola Company', 0.08414536, 0.000089),
-      ]
+      rows: [],
+      available: [],
     };
 
     this.onClick = this.onClick.bind(this);
     this.onChange = this.onChange.bind(this);
   }
+
+  componentDidMount() {
+    axios.get('http://localhost:9000/stocks', {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      }
+    }).then((response) => {
+      let available = response.data.data.map((stock) => {
+        return {
+          ticker: stock.ticker,
+          name: stock.name,
+          roi: stock.roi * 100,
+          std: stock.std * 100
+        };
+      });
+      let rows = available.slice(0,10);
+      this.setState({ available, rows });
+    });
+  }
+
   onClick() {
     this.setState({ loading: true });
     axios.post('http://localhost:9000/generate', { max_risk: this.state.maxRisk }, { headers: {

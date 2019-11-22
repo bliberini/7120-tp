@@ -10,7 +10,7 @@ def get_assets():
       line = 0
       for row in stocks_reader:
         if line != 0:
-          assets.append(Stock(row[0], row[1]))
+          assets.append(Stock(row[0], row[1], row[3], row[2]))
         line += 1  
     return assets
 
