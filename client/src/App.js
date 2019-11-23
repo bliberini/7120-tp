@@ -126,11 +126,21 @@ class App extends Component {
   }
 
   onClick() {
-    this.setState({ loading: true });
-    axios.post('http://localhost:9000/generate', { max_risk: this.state.maxRisk }, { headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json',
-    }})
+    if (this.state.maxRisk !== '' && this.state.rows.length > 0) {
+      this.setState({ loading: true });
+      axios.post(
+        'http://localhost:9000/generate',
+        {
+          max_risk: this.state.maxRisk,
+          assets: this.state.rows.map(asset => asset.ticker),
+        },
+        {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+          }
+        }
+      )
       .then((response) => {
         const rows = this.state.rows.slice();
         for (let i = 0; i < this.state.rows.length; i++) {
@@ -155,6 +165,7 @@ class App extends Component {
           return: '',
         });
       });
+    }
   }
 
   onChange(event) {

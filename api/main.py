@@ -15,14 +15,15 @@ CORS(app)
 def generate():
     t0 = time.time()
     max_risk = float(request.json['max_risk'])
-    opt = Optimizer(max_risk)
+    assets = request.json['assets']
+    opt = Optimizer(max_risk, assets)
     portfolio = opt.generate_genetic_algorithm_portfolio()
     if portfolio == None:
         resp = jsonify(None)
         resp.status_code = 500
         return resp
     t1 = time.time()
-    print(int(t1 - t0))
+    print("Total Optimization in: " + str(int(t1 - t0)) + " seconds")
     message = { 'weights': portfolio.weights.tolist(), 'expected_return': portfolio.expected_return * 100, 'std': portfolio.std * 100 }
     resp = jsonify(message)
     resp.status_code = 200

@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import csv
+import time
+from pandas_datareader import data as web
 from stock import Stock
 
 def get_assets():
@@ -14,12 +16,23 @@ def get_assets():
         line += 1  
     return assets
 
-def parse_assets():
-    assets =  ['AAPL', 'GM', 'MSFT', 'TSLA', 'SPOT', 'BOA', 'KO']
-    df = pd.read_csv("assets.csv")
+def parse_assets(assets):
+    df = get_assets_information(assets)
+    t0 = time.time()
     returns = parse_returns(df)
     cov_matrix, variance = parse_covariance(df)
-    return assets, returns, cov_matrix, variance
+    t1 = time.time()
+    print("Time to calculate data: " + str(int(t1 - t0)) + " seconds")
+    return returns, cov_matrix, variance
+
+def get_assets_information(assets):
+    t0 = time.time()
+    df = pd.DataFrame()
+    for stock in assets:
+      df[stock] = web.DataReader(stock, data_source='yahoo',start='2018-01-01' ,end='2018-12-31')['Adj Close']
+    t1 = time.time()
+    print("Time to fetch data: " + str(int(t1 - t0)) + " seconds")
+    return df
 
 def parse_returns(df):
     d_returns = df.pct_change()
