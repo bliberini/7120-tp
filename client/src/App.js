@@ -19,6 +19,11 @@ import ErrorIcon from '@material-ui/icons/Error';
 import CloseIcon from '@material-ui/icons/Close';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormControl from '@material-ui/core/FormControl';
+import DeleteIcon from '@material-ui/icons/Delete';
 import './App.css';
 import { BeatLoader } from 'react-spinners';
 import axios from 'axios';
@@ -70,6 +75,10 @@ const useStyles = theme => ({
     display: 'flex',
     alignItems: 'center',
   },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 300,
+  }
 });
 
 function createData(ticker, name, roi, std) {
@@ -86,10 +95,14 @@ class App extends Component {
       return: '',
       rows: [],
       available: [],
+      selectedIndex: -1,
     };
 
     this.onClick = this.onClick.bind(this);
     this.onChange = this.onChange.bind(this);
+    this.onChangeNewAsset = this.onChangeNewAsset.bind(this);
+    this.onClickNewAsset = this.onClickNewAsset.bind(this);
+    this.onDelete = this.onDelete.bind(this);
   }
 
   componentDidMount() {
@@ -148,6 +161,30 @@ class App extends Component {
     this.setState({ maxRisk: event.target.value });
   }
 
+  onChangeNewAsset(event) {
+    this.setState({ selectedIndex: event.target.value });
+  }
+
+  onClickNewAsset() {
+    if (this.state.selectedIndex !== -1) {
+      const newAsset = this.state.available[this.state.selectedIndex];
+      if (this.state.rows.findIndex((asset) => asset.name === newAsset.name) === -1) {
+        const rows = this.state.rows.slice();
+        rows.push(newAsset);
+        this.setState({
+          rows,
+          selectedIndex: -1
+        });
+      }
+    }
+  }
+
+  onDelete(index) {
+    const rows = this.state.rows.slice();
+    rows.splice(index, 1);
+    this.setState({ rows });
+  }
+
   render() {
     const classes = this.props.classes;
     return (
@@ -199,6 +236,7 @@ class App extends Component {
               <Table className={classes.table} aria-label="simple table">
                 <TableHead>
                   <TableRow>
+                    <TableCell style={{ width: '50px', backgroundColor: "black", color: "white", fontWeight: "bolder" }}></TableCell>
                     <TableCell style={{ backgroundColor: "black", color: "white", fontWeight: "bolder" }}>Activo</TableCell>
                     <TableCell style={{ backgroundColor: "black", color: "white", fontWeight: "bolder" }} align="right">Retorno</TableCell>
                     <TableCell style={{ backgroundColor: "black", color: "white", fontWeight: "bolder" }} align="right">Riesgo</TableCell>
@@ -206,8 +244,13 @@ class App extends Component {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {this.state.rows.map(row => (
+                  {this.state.rows.map((row, index) => (
                     <TableRow key={row.name}>
+                      <TableCell component="th" scope="row">
+                        <IconButton onClick={() => { this.onDelete(index); }}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
                       <TableCell component="th" scope="row">
                         {row.name}
                       </TableCell>
@@ -231,6 +274,35 @@ class App extends Component {
                 </TableBody>
               </Table>
             </Paper>
+          </Grid>
+          <Grid item xs={10} justify="center">
+            <form style={{ display: 'flex', flexWrap: 'wrap', }} noValidate autoComplete="off">
+              <div>
+                <FormControl className={classes.formControl}>
+                  <InputLabel>Seleccione nuevo activo</InputLabel>
+                  <Select
+                    options={this.state.available}
+                    onChange={this.onChangeNewAsset}
+                    value={this.state.selectedIndex}
+                  >
+                    {
+                      this.state.available.map((asset, index) => {
+                        return <MenuItem value={index}>{asset.name}</MenuItem>
+                      })
+                    }
+                  </Select>
+                </FormControl>
+                
+                <Button
+                  variant="contained"
+                  className={classes.button}
+                  onClick={this.onClickNewAsset}
+                  disabled={this.state.loading}
+                >
+                  Agregar
+                </Button>
+              </div>
+            </form>
           </Grid>
         </Grid>
         {
