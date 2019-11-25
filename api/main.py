@@ -24,6 +24,7 @@ def generate():
         return resp
     t1 = time.time()
     print("Total Optimization in: " + str(int(t1 - t0)) + " seconds")
+    print(f"Result --> std: {portfolio.std}")
     message = { 'weights': portfolio.weights.tolist(), 'expected_return': portfolio.expected_return * 100, 'std': portfolio.std * 100 }
     resp = jsonify(message)
     resp.status_code = 200

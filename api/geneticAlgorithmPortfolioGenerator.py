@@ -3,6 +3,7 @@ from randomPortfolioGenerator import Random_Portfolio_Generator
 import portfolioUtilities
 import numpy as np
 import random
+import time
 
 class Genetic_Algorithm_Portfolio:
     def __init__(self, max_risk, generations, returns, cov_matrix):
@@ -22,7 +23,10 @@ class Genetic_Algorithm_Portfolio:
     def generate_portfolio(self):
         #print("Generating portfolio")
         # Map solutions so that the Candidate objects also have normalized fitness value and cummulative sum
-        random_generator = Random_Portfolio_Generator(500, self.max_risk, self.returns, self.cov_matrix)
+        t0 = time.time()
+        random_generator = Random_Portfolio_Generator(5000, self.max_risk, self.returns, self.cov_matrix)
+        t1 = time.time()
+        print("Time to generate random set: " + str(int(t1 - t0)) + " seconds")
         self.initial_population = random_generator.generate_solutions()[0]
         if len(self.initial_population) == 0:
             return None
@@ -36,48 +40,51 @@ class Genetic_Algorithm_Portfolio:
         )
 
         # With this initial population, run 100 generations
-        improvements = 20
+        improvements = 100
         for i in range(self.generations):
+            t_g0 = time.time()
             if improvements == 0:
-                #print("No improvements after 50 generations")
+                print("No improvements after 100 generations")
                 break
-            ##if i % 100 == 0:
-                #print(f"Generation {i+1}/{self.generations} Selection...")
+
             # Next generation will be those selected by the selection method + the 10 best by expected return from the current generation
+            t_s0 = time.time()
             next_gen_selected = self.next_generation(current_generation)
             current_generation.sort(key=lambda x: x.expected_return, reverse=True)
             next_gen_selected = next_gen_selected + current_generation[:10]
+            t_s1 = time.time()
+            print(f"Next generation selection: {str(int(t_s1 - t_s0))} seconds")
 
-            #if i % 100 == 0:
-                #print(f"Generation {i+1}/{self.generations} Pairing...")
             # Pair parents
+            t_p0 = time.time()
             parents = self.pair(next_gen_selected)
-
-            #if i % 100 == 0:
-                #print(f"Generation {i+1}/{self.generations} Crossing...")
+            t_p1 = time.time()
+            print(f"Parents selection: {str(int(t_p1 - t_p0))} seconds")
+            
             # Cross them and create the next gen
             next_gen = []
+            t_c0 = time.time()
             for j in range(len(parents)):
                 next_gen = next_gen + self.cross(parents[j])
 
-            #if i % 100 == 0:
-                #print(f"Generation {i+1}/{self.generations} Finding best...")
             # Check if you found a better solution
             next_gen.sort(key=lambda x: x.expected_return, reverse=True)
-
+            t_c1 = time.time()
+            print(f"Cross: {str(int(t_c1 - t_c0))} seconds")
             if len(next_gen) == 0:
                 continue
 
             next_gen_best_solution = next_gen[0]
             if (best_solution.expected_return < next_gen_best_solution.expected_return):
-                #print("New best solution!")
                 best_solution = next_gen_best_solution
-                improvements = 50
+                improvements = 100
             else:
                 improvements -= 1
             
             # Next generation is now current generation
             current_generation = next_gen
+            t_g1 = time.time()
+            print(f">>> Generation {i} time: {str(int(t_g1 - t_g0))} seconds")
         #print("Done!")
         return best_solution
         
