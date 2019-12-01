@@ -24,7 +24,7 @@ class Genetic_Algorithm_Portfolio:
         #print("Generating portfolio")
         # Map solutions so that the Candidate objects also have normalized fitness value and cummulative sum
         t0 = time.time()
-        random_generator = Random_Portfolio_Generator(5000, self.max_risk, self.returns, self.cov_matrix)
+        random_generator = Random_Portfolio_Generator(100, self.max_risk, self.returns, self.cov_matrix)
         t1 = time.time()
         print("Time to generate random set: " + str(int(t1 - t0)) + " seconds")
         self.initial_population = random_generator.generate_solutions()[0]
@@ -42,6 +42,7 @@ class Genetic_Algorithm_Portfolio:
         # With this initial population, run 100 generations
         improvements = 100
         for i in range(self.generations):
+            print(f"Generation size = {len(current_generation)}")
             t_g0 = time.time()
             if improvements == 0:
                 print("No improvements after 100 generations")
@@ -51,6 +52,7 @@ class Genetic_Algorithm_Portfolio:
             t_s0 = time.time()
             next_gen_selected = self.next_generation(current_generation)
             current_generation.sort(key=lambda x: x.expected_return, reverse=True)
+            print(f"Size next gen = {len(next_gen_selected)} + {len(current_generation[:10])}")
             next_gen_selected = next_gen_selected + current_generation[:10]
             t_s1 = time.time()
             print(f"Next generation selection: {str(int(t_s1 - t_s0))} seconds")
@@ -158,10 +160,11 @@ class Genetic_Algorithm_Portfolio:
         return [self.initial_population[int(selected[x])] for x in range(len(self.initial_population)//2)]
 
     def roulette(self, cum_sum, chance):
-        veriable = list(cum_sum.copy())
-        veriable.append(chance)
-        veriable = sorted(veriable)
-        return veriable.index(chance)
+        parent_one_idx = random.randint(0, len(cum_sum) - 1)
+        parent_two_idx = random.randint(0, len(cum_sum) - 1)
+        parent_one = cum_sum[parent_one_idx]
+        parent_two = cum_sum[parent_two_idx]
+        return parent_one_idx if parent_one > parent_two else parent_two_idx
     
     def pair(self, generation):
         # Pairs selected chromosomes by fitness
